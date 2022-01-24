@@ -541,6 +541,35 @@ export function getGooglePayAdyenV2(): PaymentMethod {
     };
 }
 
+export function getGooglePayAdyenV3(): PaymentMethod {
+    return {
+        id: 'googlepayadyenv3',
+        logoUrl: '',
+        method: 'googlepay',
+        supportedCards: [
+            'VISA',
+            'MC',
+            'AMEX',
+        ],
+        config: {
+            displayName: 'Google Pay',
+            merchantId: '',
+            testMode: true,
+        },
+        type: 'PAYMENT_TYPE_API',
+        clientToken: 'clientToken',
+        initializationData: {
+            originKey: 'YOUR_ORIGIN_KEY',
+            clientKey: 'YOUR_CLIENT_KEY',
+            nonce: 'nonce',
+            card_information: {
+                type: 'MasterCard',
+                number: '4111',
+            },
+        },
+    };
+}
+
 export function getGooglePayCybersourceV2(): PaymentMethod {
     return {
         id: 'googlepaycybersourcev2',
@@ -682,6 +711,26 @@ export function getStripeUPE(method: string = 'card'): PaymentMethod {
 export function getAdyenV2(method: string = 'scheme'): PaymentMethod {
     return {
         id: 'adyenv2',
+        logoUrl: '',
+        method,
+        supportedCards: [],
+        config: {
+            displayName: 'Adyen',
+            merchantId: 'YOUR_MERCHANT_ID',
+            testMode: true,
+        },
+        initializationData: {
+            originKey: 'YOUR_ORIGIN_KEY',
+            clientKey: 'YOUR_CLIENT_KEY',
+        },
+        type: 'PAYMENT_TYPE_API',
+        clientToken: 'clientToken',
+    };
+}
+
+export function getAdyenV3(method: string = 'scheme'): PaymentMethod {
+    return {
+        id: 'adyenv3',
         logoUrl: '',
         method,
         supportedCards: [],

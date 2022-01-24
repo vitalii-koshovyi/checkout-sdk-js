@@ -209,6 +209,73 @@ export function getAdyenV2TokenizedPayload(): TokenizePayload {
     };
 }
 
+// AdyenV3
+export function getAdyenV3PaymentDataMock(): GooglePaymentData {
+    const googlePaymentDataMock = getGooglePaymentDataMock();
+    googlePaymentDataMock.paymentMethodData.tokenizationData.token = `{"signature":"foo","protocolVersion":"ECv1","signedMessage":"{"encryptedMessage":"foo","ephemeralPublicKey":"foo"}"}`;
+
+    return googlePaymentDataMock;
+}
+
+export function getAdyenV3PaymentDataRequest(): GooglePayPaymentDataRequestV2 {
+    return {
+        apiVersion: 2,
+        apiVersionMinor: 0,
+        allowedPaymentMethods: [
+            {
+                type: 'CARD',
+                parameters: {
+                    allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+                    allowedCardNetworks: ['AMEX', 'DISCOVER', 'JCB', 'MASTERCARD', 'VISA'],
+                    billingAddressRequired: true,
+                    billingAddressParameters: {
+                        format: BillingAddressFormat.Full,
+                        phoneNumberRequired: true,
+                    },
+                },
+                tokenizationSpecification: {
+                    type: 'PAYMENT_GATEWAY',
+                    parameters: {
+                        gateway: 'adyen',
+                        gatewayMerchantId: '7654321',
+                    },
+                },
+            },
+        ],
+        transactionInfo: {
+            totalPriceStatus: 'FINAL',
+            totalPrice: '1.00',
+            currencyCode: 'USD',
+        },
+        merchantInfo: {
+            merchantName: 'name',
+            merchantId: '123',
+            authJwt: 'platformToken',
+        },
+        emailRequired: true,
+        shippingAddressRequired: true,
+        shippingAddressParameters: { phoneNumberRequired: true },
+    };
+}
+
+export function getAdyenV3PaymentMethodMock(): PaymentMethod {
+    const paymentMethodMock = getPaymentMethodMock();
+    paymentMethodMock.initializationData.gatewayMerchantId = paymentMethodMock.initializationData.paymentGatewayId;
+
+    return paymentMethodMock;
+}
+
+export function getAdyenV3TokenizedPayload(): TokenizePayload {
+    return {
+        type: 'CARD',
+        nonce: '{"signature":"foo","protocolVersion":"ECv1","signedMessage":"{"encryptedMessage":"foo","ephemeralPublicKey":"foo"}"}',
+        details: {
+            cardType: 'MASTERCARD',
+            lastFour: '0304',
+        },
+    };
+}
+
 // Auth.Net
 export function getAuthorizeNetPaymentDataRequest(): GooglePayPaymentDataRequestV2 {
     return {
