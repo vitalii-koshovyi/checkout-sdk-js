@@ -117,24 +117,18 @@ export function getInitializeOptions(hasVaultedInstruments = false): PaymentInit
         adyenv3: {
             containerId: 'adyen-scheme-component-field',
             cardVerificationContainerId: 'adyen-custom-card-component-field',
-            threeDS2ContainerId: 'adyen-scheme-3ds-component-field',
             hasVaultedInstruments,
             options: {
                 hasHolderName: true,
                 styles: {},
                 placeholders: {},
             },
-            threeDS2Options: {
-                widgetSize: '05',
-                onBeforeLoad: jest.fn(),
-                onComplete: jest.fn(),
-                onLoad: jest.fn(),
-            },
             additionalActionOptions: {
                 containerId: 'adyen-scheme-additional-action-component-field',
                 onBeforeLoad: jest.fn(),
                 onComplete: jest.fn(),
                 onLoad: jest.fn(),
+                widgetSize: '05',
             },
             validateCardFields: jest.fn(),
         },
@@ -147,17 +141,14 @@ export function getInitializeOptionsWithNoCallbacks(): PaymentInitializeOptions 
         adyenv3: {
             containerId: 'adyen-scheme-component-field',
             cardVerificationContainerId: 'adyen-custom-card-component-field',
-            threeDS2ContainerId: 'adyen-scheme-3ds-component-field',
             options: {
                 hasHolderName: true,
                 styles: {},
                 placeholders: {},
             },
-            threeDS2Options: {
-                widgetSize: '05',
-            },
             additionalActionOptions: {
                 containerId: 'adyen-scheme-additional-action-component-field',
+                widgetSize: '05',
             },
             validateCardFields: jest.fn(),
         },
@@ -170,16 +161,10 @@ export function getInitializeOptionsWithUndefinedWidgetSize(): PaymentInitialize
         adyenv3: {
             containerId: 'adyen-scheme-component-field',
             cardVerificationContainerId: 'adyen-custom-card-component-field',
-            threeDS2ContainerId: 'adyen-scheme-3ds-component-field',
             options: {
                 hasHolderName: true,
                 styles: {},
                 placeholders: {},
-            },
-            threeDS2Options: {
-                onBeforeLoad: jest.fn(),
-                onComplete: jest.fn(),
-                onLoad: jest.fn(),
             },
             additionalActionOptions: {
                 containerId: 'adyen-scheme-additional-action-component-field',

@@ -8,7 +8,7 @@ export enum AdyenActionType {
     /*
     * The payment qualifies for 3D Secure 2, and the issuer is initiating a challenge flow.
     * */
-    ThreeDS2Challenge = 'threeDS2Challenge',
+    ThreeDS2 = 'threeDS2',
 
     /*
     * We will initiate a 3D Secure 1 fallback, because the issuer does not support 3D Secure 2.
@@ -138,6 +138,18 @@ export interface AdyenAdditionalActionOptions extends AdyenAdditionalActionCallb
      * The location to insert the additional action component.
      */
     containerId: string;
+
+    /**
+     * Specify Three3DS2Challenge Widget Size
+     *
+     * Values
+     * '01' = 250px x 400px
+     * '02' = 390px x 400px
+     * '03' = 500px x 600px
+     * '04' = 600px x 400px
+     * '05' = 100% x 100%
+     */
+    widgetSize?: string;
 }
 
 export interface AdyenAdditionalActionState {
@@ -221,6 +233,8 @@ export interface AdyenConfiguration {
      * Component.
      */
     paymentMethodsResponse?: PaymentMethodsResponse;
+
+    showPayButton?: boolean;
 
     /*
      * Specify the function that you created, for example, handleOnChange. If you wish
@@ -363,20 +377,6 @@ export interface AdyenStoredPaymentMethod {
      * The type of payment method.
      */
     type?: string;
-}
-
-export interface AdyenThreeDS2Options extends AdyenAdditionalActionCallbacks {
-    /**
-     * Specify Three3DS2Challenge Widget Size
-     *
-     * Values
-     * '01' = 250px x 400px
-     * '02' = 390px x 400px
-     * '03' = 500px x 600px
-     * '04' = 600px x 400px
-     * '05' = 100% x 100%
-     */
-    widgetSize?: string;
 }
 
 export interface Bank {

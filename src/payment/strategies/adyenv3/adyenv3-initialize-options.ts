@@ -1,7 +1,7 @@
 import { Omit } from '../../../common/types';
 
 import { AdyenComponentState } from '.';
-import { AdyenAdditionalActionOptions, AdyenCreditCardComponentOptions, AdyenIdealComponentOptions, AdyenThreeDS2Options } from './adyenv3';
+import { AdyenAdditionalActionOptions, AdyenCreditCardComponentOptions, AdyenIdealComponentOptions } from './adyenv3';
 
 /**
  * A set of options that are required to initialize the Adyenv3 payment method.
@@ -71,11 +71,11 @@ export default interface AdyenV3PaymentInitializeOptions {
      */
     containerId: string;
 
-    /**
-     * @deprecated The location to insert the Adyen 3DS v3 component.
-     * Use additionalActionOptions instead as this property will be removed in the future
-     */
-    threeDS2ContainerId: string;
+    // /**
+    //  * @deprecated The location to insert the Adyen 3DS v3 component.
+    //  * Use additionalActionOptions instead as this property will be removed in the future
+    //  */
+    // threeDS2ContainerId: string;
 
     /**
      * The location to insert the Adyen custom card component
@@ -87,11 +87,11 @@ export default interface AdyenV3PaymentInitializeOptions {
      */
     hasVaultedInstruments?: boolean;
 
-    /**
-     * @deprecated
-     * Use additionalActionOptions instead as this property will be removed in the future
-     */
-    threeDS2Options: AdyenThreeDS2Options;
+    // /**
+    //  * @deprecated
+    //  * Use additionalActionOptions instead as this property will be removed in the future
+    //  */
+    // threeDS2Options;
 
     /**
      * A set of options that are required to initialize additional payment actions.

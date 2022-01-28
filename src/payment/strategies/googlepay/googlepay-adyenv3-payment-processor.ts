@@ -20,23 +20,10 @@ export default class GooglePayAdyenV3PaymentProcessor {
             throw new MissingDataError(MissingDataErrorType.MissingCheckoutConfig);
         }
 
-        const clientSideAuthentication = {
-            key: '',
-            value: '',
-        };
-
-        if (paymentMethod.initializationData.originKey) {
-            clientSideAuthentication.key = 'originKey';
-            clientSideAuthentication.value = paymentMethod.initializationData.originKey;
-        } else {
-            clientSideAuthentication.key = 'clientKey';
-            clientSideAuthentication.value = paymentMethod.initializationData.clientKey;
-        }
-
         this._adyenClient = await this._scriptLoader.load({
             environment: paymentMethod.config.testMode ? 'TEST' : ' PRODUCTION',
             locale: storeConfig.storeProfile.storeLanguage,
-            [clientSideAuthentication.key]: clientSideAuthentication.value,
+            clientKey: paymentMethod.initializationData.clientKey,
             paymentMethodsResponse: paymentMethod.initializationData.paymentMethodsResponse,
         });
     }
