@@ -5,7 +5,7 @@ import Payment from '../../payment';
 import { PaymentInitializeOptions } from '../../payment-request-options';
 import { getCreditCardInstrument, getErrorPaymentResponseBody, getVaultedInstrument } from '../../payments.mock';
 
-import { AdyenAdditionalActionErrorResponse, AdyenClient, AdyenComponent, AdyenComponentState, AdyenConfiguration, AdyenError, AdyenPaymentMethodType, ResultCode } from './adyenv3';
+import { AdyenAdditionalActionErrorResponse, AdyenClient, AdyenComponent, AdyenConfiguration, AdyenError, AdyenPaymentMethodType, AdyenV3ComponentState, ResultCode } from './adyenv3';
 
 function getAdditionalActionErrorResponse(resultCode: ResultCode): AdyenAdditionalActionErrorResponse {
     return {
@@ -87,16 +87,14 @@ export function getAdyenError(): AdyenError {
     };
 }
 
-export function getComponentState(isValid: boolean = true): AdyenComponentState {
+export function getComponentState(isValid: boolean = true): AdyenV3ComponentState {
     return {
         data: {
-            paymentMethod: {
-                encryptedCardNumber: 'ENCRYPTED_CARD_NUMBER',
-                encryptedExpiryMonth: 'ENCRYPTED_EXPIRY_MONTH',
-                encryptedExpiryYear: 'ENCRYPTED_EXPIRY_YEAR',
-                encryptedSecurityCode: 'ENCRYPTED_CVV',
-                type: AdyenPaymentMethodType.CreditCard,
-            },
+            encryptedCardNumber: 'ENCRYPTED_CARD_NUMBER',
+            encryptedExpiryMonth: 'ENCRYPTED_EXPIRY_MONTH',
+            encryptedExpiryYear: 'ENCRYPTED_EXPIRY_YEAR',
+            encryptedSecurityCode: 'ENCRYPTED_CVV',
+            holderName: 'John Smith',
         },
         isValid,
     };

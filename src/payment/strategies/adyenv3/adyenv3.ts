@@ -61,15 +61,11 @@ interface AdyenPaymentMethodState {
     type: string;
 }
 
-interface CardDataPaymentMethodState {
-    paymentMethod: CardPaymentMethodState;
-}
-
 interface WechatDataPaymentMethodState {
     paymentMethod: AdyenPaymentMethodState;
 }
 
-interface CardPaymentMethodState extends AdyenPaymentMethodState {
+interface CardPaymentMethodState {
     encryptedCardNumber: string;
     encryptedExpiryMonth: string;
     encryptedExpiryYear: string;
@@ -176,15 +172,15 @@ export interface AdyenComponentEvents {
      * Called when the shopper enters data in the card input fields.
      * Here you have the option to override your main Adyen Checkout configuration.
      */
-    onChange?(state: AdyenComponentState, component: AdyenComponent): void;
+    onChange?(state: AdyenV3ComponentState, component: AdyenComponent): void;
 
     /**
      * Called in case of an invalid card number, invalid expiry date, or
      *  incomplete field. Called again when errors are cleared.
      */
-    onError?(state: AdyenComponentState, component: AdyenComponent): void;
+    onError?(state: AdyenV3ComponentState, component: AdyenComponent): void;
 
-    onFieldValid?(state: AdyenComponentState, component: AdyenComponent): void;
+    onFieldValid?(state: AdyenV3ComponentState, component: AdyenComponent): void;
 }
 
 export interface AdyenClient {
@@ -258,7 +254,7 @@ export interface AdyenPlaceholderData {
     };
 }
 
-export interface AdyenCreditCardComponentOptions extends AdyenBaseCardComponentOptions, AdyenComponentEvents {
+export interface AdyenV3CreditCardComponentOptions extends AdyenBaseCardComponentOptions, AdyenComponentEvents {
     /**
      * Set an object containing the details array for type: scheme from
      * the /paymentMethods response.
@@ -320,7 +316,7 @@ export interface AdyenHostWindow extends Window {
     AdyenCheckout?: new(configuration: AdyenConfiguration) => AdyenClient;
 }
 
-export interface AdyenIdealComponentOptions {
+export interface AdyenV3IdealComponentOptions {
     /**
      * Optional. Set to **false** to remove the bank logos from the iDEAL form.
      */
@@ -493,7 +489,7 @@ export interface Card {
 }
 
 export interface CardState {
-    data: CardDataPaymentMethodState;
+    data: CardPaymentMethodState;
     isValid?: boolean;
     valid?: {[key: string]: boolean};
     errors?: CardStateErrors;
@@ -817,12 +813,12 @@ export interface ThreeDS2DeviceFingerprintComponentOptions {
     onError(error: AdyenError): void;
 }
 
-export type AdyenComponentState = (
+export type AdyenV3ComponentState = (
     CardState | WechatState
 );
 
 export type AdyenComponentOptions = (
-    AdyenCreditCardComponentOptions | AdyenIdealComponentOptions | AdyenCustomCardComponentOptions
+    AdyenV3CreditCardComponentOptions | AdyenV3IdealComponentOptions | AdyenCustomCardComponentOptions
 );
 
 export function isCardState(param: any): param is CardState {

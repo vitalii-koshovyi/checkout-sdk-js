@@ -19,7 +19,7 @@ import PaymentRequestSender from '../../payment-request-sender';
 import PaymentRequestTransformer from '../../payment-request-transformer';
 import { getCreditCardInstrument } from '../../payments.mock';
 
-import { AdyenAdditionalActionState, AdyenComponentState, AdyenError, AdyenPaymentMethodType, AdyenV3PaymentStrategy, AdyenV3ScriptLoader, ResultCode } from '.';
+import { AdyenAdditionalActionState, AdyenError, AdyenPaymentMethodType, AdyenV3ComponentState, AdyenV3PaymentStrategy, AdyenV3ScriptLoader, ResultCode } from '.';
 import { AdyenComponent } from './adyenv3';
 import { getAdditionalActionError, getAdyenClient, getAdyenError, getComponentState, getFailingComponent, getInitializeOptions, getInitializeOptionsWithNoCallbacks, getInitializeOptionsWithUndefinedWidgetSize, getOrderRequestBody, getOrderRequestBodyWithoutPayment, getOrderRequestBodyWithVaultedInstrument, getUnknownError } from './adyenv3.mock';
 
@@ -85,8 +85,8 @@ describe('AdyenV3PaymentStrategy', () => {
         let cardVerificationComponent: AdyenComponent;
 
         beforeEach(() => {
-            let handleOnChange: (componentState: AdyenComponentState) => {};
-            let handleOnError: (componentState: AdyenComponentState) => {};
+            let handleOnChange: (componentState: AdyenV3ComponentState) => {};
+            let handleOnError: (componentState: AdyenV3ComponentState) => {};
 
             options = getInitializeOptions();
 

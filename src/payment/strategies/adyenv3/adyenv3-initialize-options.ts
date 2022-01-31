@@ -1,7 +1,7 @@
 import { Omit } from '../../../common/types';
 
-import { AdyenComponentState } from '.';
-import { AdyenAdditionalActionOptions, AdyenCreditCardComponentOptions, AdyenIdealComponentOptions } from './adyenv3';
+import { AdyenV3ComponentState } from '.';
+import { AdyenAdditionalActionOptions, AdyenV3CreditCardComponentOptions, AdyenV3IdealComponentOptions } from './adyenv3';
 
 /**
  * A set of options that are required to initialize the Adyenv3 payment method.
@@ -101,9 +101,9 @@ export default interface AdyenV3PaymentInitializeOptions {
     /**
      * Optional. Overwriting the default options
      */
-    options?: Omit<AdyenCreditCardComponentOptions, 'onChange'> | AdyenIdealComponentOptions;
+    options?: Omit<AdyenV3CreditCardComponentOptions, 'onChange'> | AdyenV3IdealComponentOptions;
 
     shouldShowNumberField?: boolean;
 
-    validateCardFields(componentState: AdyenComponentState): void;
+    validateCardFields(componentState: AdyenV3ComponentState): void;
 }
