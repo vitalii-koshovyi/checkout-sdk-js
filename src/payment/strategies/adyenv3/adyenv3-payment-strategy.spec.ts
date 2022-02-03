@@ -115,7 +115,7 @@ describe('AdyenV3PaymentStrategy', () => {
             jest.spyOn(adyenV3ScriptLoader, 'load').mockReturnValue(Promise.resolve(adyenCheckout));
 
             jest.spyOn(adyenCheckout, 'create')
-                .mockImplementationOnce(jest.fn((_method, options) => {
+                .mockImplementationOnce(jest.fn(_method => {
                     // const { onChange } = options;
                     // handleOnChange = onChange;
 

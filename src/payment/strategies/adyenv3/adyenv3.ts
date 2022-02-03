@@ -814,7 +814,7 @@ export interface ThreeDS2DeviceFingerprintComponentOptions {
 }
 
 export type AdyenV3ComponentState = (
-    CardState | WechatState
+    CardState
 );
 
 export type AdyenComponentOptions = (
