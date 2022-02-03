@@ -101,7 +101,7 @@ export default interface AdyenV3PaymentInitializeOptions {
     /**
      * Optional. Overwriting the default options
      */
-    options?: Omit<AdyenV3CreditCardComponentOptions, 'onChange'> | AdyenV3IdealComponentOptions;
+    options?: Omit<AdyenV3CreditCardComponentOptions, 'onChange'>;
 
     shouldShowNumberField?: boolean;
 

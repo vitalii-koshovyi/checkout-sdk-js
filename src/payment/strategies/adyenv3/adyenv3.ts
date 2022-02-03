@@ -822,12 +822,12 @@ export type AdyenComponentOptions = (
 );
 
 export function isCardState(param: any): param is CardState {
-    return param && typeof param.data.paymentMethod.encryptedSecurityCode === 'string' ||
-        typeof param.data.paymentMethod.encryptedExpiryMonth === 'string';
+    return param && typeof param.data.encryptedSecurityCode === 'string' ||
+        typeof param.data.encryptedExpiryMonth === 'string';
 }
 
-export function isAccountState(param: any): param is AccountState {
-    const bankSupported = ['ideal', 'sepadirectdebit', 'directEbanking', 'giropay'];
+// export function isAccountState(param: any): param is AccountState {
+//     const bankSupported = ['ideal', 'sepadirectdebit', 'directEbanking', 'giropay'];
 
-    return bankSupported.indexOf(param.data.paymentMethod.type) !== -1;
-}
+//     return bankSupported.indexOf(param.data.paymentMethod.type) !== -1;
+// }

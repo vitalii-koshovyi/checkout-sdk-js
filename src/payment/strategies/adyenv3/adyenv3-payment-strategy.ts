@@ -14,7 +14,7 @@ import PaymentMethod from '../../payment-method';
 import { PaymentInitializeOptions, PaymentRequestOptions } from '../../payment-request-options';
 import PaymentStrategy from '../payment-strategy';
 
-import { isAccountState, isCardState, AdyenAction, AdyenActionType, AdyenAdditionalAction, AdyenAdditionalActionState, AdyenClient, AdyenComponent, AdyenComponentType, AdyenError, AdyenPaymentMethodType, AdyenPlaceholderData, CardStateErrors } from './adyenv3';
+import { /*isAccountState,*/ isCardState, AdyenAction, AdyenActionType, AdyenAdditionalAction, AdyenAdditionalActionState, AdyenClient, AdyenComponent, AdyenComponentType, AdyenError, AdyenPaymentMethodType, AdyenPlaceholderData, CardStateErrors } from './adyenv3';
 import AdyenV3PaymentInitializeOptions from './adyenv3-initialize-options';
 import AdyenV3ScriptLoader from './adyenv3-script-loader';
 
@@ -58,7 +58,6 @@ export default class Adyenv3PaymentStrategy implements PaymentStrategy {
             paymentMethod.method === AdyenPaymentMethodType.Bancontact) {
             this._cardVerificationComponent = await this._mountCardVerificationComponent();
         }
-        console.log('this._paymentComponent: ', this._paymentComponent);
 
         return Promise.resolve(this._store.getState());
     }
@@ -77,9 +76,9 @@ export default class Adyenv3PaymentStrategy implements PaymentStrategy {
 
         return this._store.dispatch(this._orderActionCreator.submitOrder(order, options))
             .then(() => {
-                const componentState = this._paymentComponent?.state;
+                const componentState = this._paymentComponent?.state || {data: {paymentMethod: {type: payment.methodId}}} ;
 
-                if (!componentState) {
+                if (!componentState ) {
                     throw new NotInitializedError(NotInitializedErrorType.PaymentNotInitialized);
                 }
 
@@ -96,21 +95,21 @@ export default class Adyenv3PaymentStrategy implements PaymentStrategy {
                         };
                     }
 
-                    if (isCardState(componentState) || isAccountState(componentState)) {
-                        return this._store.dispatch(this._paymentActionCreator.submitPayment({
-                            ...payment,
-                            paymentData: {
-                                formattedPayload: {
-                                    bigpay_token: {
-                                        ...bigpayToken,
-                                        token: paymentData.instrumentId,
-                                    },
-                                    browser_info: getBrowserInfo(),
-                                    set_as_default_stored_instrument: shouldSetAsDefaultInstrument || null,
+                    // if (isCardState(componentState) || isAccountState(componentState)) {
+                    return this._store.dispatch(this._paymentActionCreator.submitPayment({
+                        ...payment,
+                        paymentData: {
+                            formattedPayload: {
+                                bigpay_token: {
+                                    ...bigpayToken,
+                                    token: paymentData.instrumentId,
                                 },
+                                browser_info: getBrowserInfo(),
+                                set_as_default_stored_instrument: shouldSetAsDefaultInstrument || null,
                             },
-                        }));
-                    }
+                        },
+                    }));
+                    // }
                 }
 
                 return this._store.dispatch(this._paymentActionCreator.submitPayment({
@@ -139,8 +138,6 @@ export default class Adyenv3PaymentStrategy implements PaymentStrategy {
     }
 
     deinitialize(): Promise<InternalCheckoutSelectors> {
-        // this._componentState = undefined;
-
         if (this._paymentComponent) {
             this._paymentComponent.unmount();
             this._paymentComponent = undefined;
@@ -257,9 +254,7 @@ export default class Adyenv3PaymentStrategy implements PaymentStrategy {
                             color: 'green',
                         },
                     },
-                    // onChange: componentState => this._updateComponentState(componentState),
                     onError: componentState => {
-                        // this._updateComponentState(componentState);
                         adyenv3.validateCardFields(componentState);
                     },
                     onFieldValid: componentState => adyenv3.validateCardFields(componentState),
@@ -287,10 +282,6 @@ export default class Adyenv3PaymentStrategy implements PaymentStrategy {
             if (!adyenv3.hasVaultedInstruments) {
                 paymentComponent = adyenClient.create(paymentMethod.method, {
                     ...adyenv3.options,
-                    onChange: componentState => {
-                        console.log({adyenv3, adyenClient, 'this._paymentComponent': this._paymentComponent, componentState});
-                        // this._updateComponentState(componentState);
-                    },
                     data: this._mapAdyenPlaceholderData(billingAddress),
                 });
 
@@ -325,10 +316,6 @@ export default class Adyenv3PaymentStrategy implements PaymentStrategy {
             return this._processAdditionalAction(error, shouldSaveInstrument, shouldSetAsDefaultInstrument);
         }
     }
-
-    // private _updateComponentState(componentState: AdyenV3ComponentState) {
-    //     this._componentState = componentState;
-    // }
 
     private _validateCardData(): void {
         const adyenv3 = this._getPaymentInitializeOptions();
