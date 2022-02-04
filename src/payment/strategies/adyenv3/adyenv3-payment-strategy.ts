@@ -76,7 +76,8 @@ export default class Adyenv3PaymentStrategy implements PaymentStrategy {
 
         return this._store.dispatch(this._orderActionCreator.submitOrder(order, options))
             .then(() => {
-                const componentState = this._paymentComponent?.state || {data: {paymentMethod: {type: payment.methodId}}} ;
+                const cardComponent = this._paymentComponent;
+                const componentState = cardComponent?.state || {data: {paymentMethod: {type: payment.methodId}}} ;
 
                 if (!componentState ) {
                     throw new NotInitializedError(NotInitializedErrorType.PaymentNotInitialized);
@@ -85,17 +86,11 @@ export default class Adyenv3PaymentStrategy implements PaymentStrategy {
                 if (paymentData && isVaultedInstrument(paymentData)) {
                     let bigpayToken = {};
                     if (isCardState(componentState)) {
-                        const { encryptedCardNumber, encryptedSecurityCode, encryptedExpiryMonth, encryptedExpiryYear } = componentState.data;
-
                         bigpayToken = {
-                            credit_card_number_confirmation: encryptedCardNumber,
-                            expiry_month: encryptedExpiryMonth,
-                            expiry_year: encryptedExpiryYear,
-                            verification_value: encryptedSecurityCode,
+                            verification_value: this._cardVerificationComponent?.state?.data.encryptedSecurityCode,
                         };
                     }
 
-                    // if (isCardState(componentState) || isAccountState(componentState)) {
                     return this._store.dispatch(this._paymentActionCreator.submitPayment({
                         ...payment,
                         paymentData: {
@@ -109,7 +104,6 @@ export default class Adyenv3PaymentStrategy implements PaymentStrategy {
                             },
                         },
                     }));
-                    // }
                 }
 
                 return this._store.dispatch(this._paymentActionCreator.submitPayment({
@@ -279,17 +273,15 @@ export default class Adyenv3PaymentStrategy implements PaymentStrategy {
         return new Promise((resolve, reject) => {
             const billingAddress = this._store.getState().billingAddress.getBillingAddress();
 
-            if (!adyenv3.hasVaultedInstruments) {
-                paymentComponent = adyenClient.create(paymentMethod.method, {
-                    ...adyenv3.options,
-                    data: this._mapAdyenPlaceholderData(billingAddress),
-                });
+            paymentComponent = adyenClient.create(paymentMethod.method, {
+                ...adyenv3.options,
+                data: this._mapAdyenPlaceholderData(billingAddress),
+            });
 
-                try {
-                    paymentComponent.mount(`#${adyenv3.containerId}`);
-                } catch (error) {
-                    reject(new NotInitializedError(NotInitializedErrorType.PaymentNotInitialized));
-                }
+            try {
+                paymentComponent.mount(`#${adyenv3.containerId}`);
+            } catch (error) {
+                reject(new NotInitializedError(NotInitializedErrorType.PaymentNotInitialized));
             }
 
             resolve(paymentComponent);
