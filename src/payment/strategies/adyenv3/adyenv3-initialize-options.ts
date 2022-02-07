@@ -1,7 +1,7 @@
 import { Omit } from '../../../common/types';
 
 import { AdyenV3ComponentState } from '.';
-import { AdyenAdditionalActionOptions, AdyenV3CreditCardComponentOptions, /*AdyenV3IdealComponentOptions*/ } from './adyenv3';
+import { AdyenAdditionalActionOptions, AdyenV3CreditCardComponentOptions } from './adyenv3';
 
 /**
  * A set of options that are required to initialize the Adyenv3 payment method.

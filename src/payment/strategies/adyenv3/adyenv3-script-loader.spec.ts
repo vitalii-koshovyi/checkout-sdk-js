@@ -3,11 +3,11 @@ import { ScriptLoader, StylesheetLoader } from '@bigcommerce/script-loader';
 import { PaymentMethodClientUnavailableError } from '../../errors';
 
 import { AdyenHostWindow } from './adyenv3';
-import Adyenv3ScriptLoader from './adyenv3-script-loader';
+import AdyenV3ScriptLoader from './adyenv3-script-loader';
 import { getAdyenClient, getAdyenConfiguration } from './adyenv3.mock';
 
-describe('Adyenv3ScriptLoader', () => {
-    let adyenv3ScriptLoader: Adyenv3ScriptLoader;
+describe('AdyenV3ScriptLoader', () => {
+    let adyenV3ScriptLoader: AdyenV3ScriptLoader;
     let scriptLoader: ScriptLoader;
     let stylesheetLoader: StylesheetLoader;
     let mockWindow: AdyenHostWindow;
@@ -16,7 +16,7 @@ describe('Adyenv3ScriptLoader', () => {
         mockWindow = {} as AdyenHostWindow;
         scriptLoader = {} as ScriptLoader;
         stylesheetLoader = {} as StylesheetLoader;
-        adyenv3ScriptLoader = new Adyenv3ScriptLoader(scriptLoader, stylesheetLoader, mockWindow);
+        adyenV3ScriptLoader = new AdyenV3ScriptLoader(scriptLoader, stylesheetLoader, mockWindow);
     });
 
     describe('#load()', () => {
@@ -43,20 +43,20 @@ describe('Adyenv3ScriptLoader', () => {
         });
 
         it('loads the JS and CSS', async () => {
-            await adyenv3ScriptLoader.load(configuration);
+            await adyenV3ScriptLoader.load(configuration);
 
             expect(scriptLoader.loadScript).toHaveBeenCalledWith(jsUrl);
             expect(stylesheetLoader.loadStylesheet).toHaveBeenCalledWith(cssUrl);
         });
 
         it('returns the JS from the window using originKey', async () => {
-            const adyenJs = await adyenv3ScriptLoader.load(configuration);
+            const adyenJs = await adyenV3ScriptLoader.load(configuration);
 
             expect(adyenJs).toBe(adyenClient);
         });
 
         it('returns the JS from the window using clientKey', async () => {
-            const adyenJs = await adyenv3ScriptLoader.load(configurationWithClientKey);
+            const adyenJs = await adyenV3ScriptLoader.load(configurationWithClientKey);
 
             expect(adyenJs).toBe(adyenClient);
         });
@@ -69,7 +69,7 @@ describe('Adyenv3ScriptLoader', () => {
             });
 
             try {
-                await adyenv3ScriptLoader.load(configuration);
+                await adyenV3ScriptLoader.load(configuration);
             } catch (error) {
                 expect(error).toBeInstanceOf(PaymentMethodClientUnavailableError);
             }

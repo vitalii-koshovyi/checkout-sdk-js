@@ -9,7 +9,7 @@ import { getCheckoutStoreState } from '../../../checkout/checkouts.mock';
 import { InvalidArgumentError, NotInitializedError, RequestError } from '../../../common/error/errors';
 import { FinalizeOrderAction, OrderActionCreator, OrderActionType, OrderRequestSender, SubmitOrderAction } from '../../../order';
 import { OrderFinalizationNotRequiredError } from '../../../order/errors';
-import { PaymentInitializeOptions } from '../..';
+import { PaymentInitializeOptions } from '../../../payment';
 import { createSpamProtection, PaymentHumanVerificationHandler } from '../../../spam-protection';
 import { PaymentArgumentInvalidError, PaymentInvalidFormError, PaymentMethodCancelledError } from '../../errors';
 import PaymentActionCreator from '../../payment-action-creator';
@@ -105,6 +105,7 @@ describe('AdyenV3PaymentStrategy', () => {
                     return;
                 }),
                 unmount: jest.fn(),
+                state: getComponentState(),
             };
 
             jest.spyOn(store.getState().paymentMethods, 'getPaymentMethodOrThrow').mockReturnValue(getAdyenV3());
@@ -262,11 +263,8 @@ describe('AdyenV3PaymentStrategy', () => {
                     paymentData: {
                         formattedPayload: expect.objectContaining({
                             bigpay_token : {
-                                credit_card_number_confirmation: 'ENCRYPTED_CARD_NUMBER',
                                 token: '123',
                                 verification_value: 'ENCRYPTED_CVV',
-                                expiry_month: 'ENCRYPTED_EXPIRY_MONTH',
-                                expiry_year: 'ENCRYPTED_EXPIRY_YEAR',
                             },
                             browser_info: {
                                 color_depth: 24,
@@ -442,39 +440,6 @@ describe('AdyenV3PaymentStrategy', () => {
                         },
                     },
                 });
-            });
-
-            it('calls submitPayment when paying with vaulted account', async () => {
-                jest.spyOn(store.getState().paymentMethods, 'getPaymentMethodOrThrow')
-                    .mockReturnValue(getAdyenV3(AdyenPaymentMethodType.GiroPay));
-
-                jest.spyOn(paymentActionCreator, 'submitPayment')
-                    .mockReturnValueOnce(submitPaymentAction);
-
-                options = getInitializeOptions(true);
-
-                await strategy.initialize(options);
-                await strategy.execute(getOrderRequestBodyWithVaultedInstrument(AdyenPaymentMethodType.GiroPay));
-
-                expect(paymentActionCreator.submitPayment).toHaveBeenCalledWith(expect.objectContaining({
-                    methodId: 'giropay',
-                    paymentData: {
-                        formattedPayload: expect.objectContaining({
-                            bigpay_token : {
-                                token: '123',
-                            },
-                            browser_info: {
-                                color_depth: 24,
-                                java_enabled: false,
-                                language: 'en-US',
-                                screen_height: 0,
-                                screen_width: 0,
-                                time_zone_offset: expect.anything(),
-                            },
-                        }),
-                    },
-                }));
-                expect(adyenCheckout.create).toHaveBeenCalledTimes(0);
             });
 
             it('calls submitPayment, passing a set as default flag, when paying with vaulted account that should be defaulted', async () => {
