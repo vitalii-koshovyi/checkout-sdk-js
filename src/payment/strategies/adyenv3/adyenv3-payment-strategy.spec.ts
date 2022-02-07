@@ -85,14 +85,12 @@ describe('AdyenV3PaymentStrategy', () => {
         let cardVerificationComponent: AdyenComponent;
 
         beforeEach(() => {
-            // let handleOnChange: (componentState: AdyenV3ComponentState) => {};
             let handleOnError: (componentState: AdyenV3ComponentState) => {};
 
             options = getInitializeOptions();
 
             paymentComponent = {
                 mount: jest.fn(() => {
-                    // handleOnChange(getComponentState());
 
                     return;
                 }),
@@ -102,7 +100,6 @@ describe('AdyenV3PaymentStrategy', () => {
 
             cardVerificationComponent = {
                 mount: jest.fn(() => {
-                    // handleOnChange(getComponentState());
                     handleOnError(getComponentState(false));
 
                     return;
@@ -116,14 +113,10 @@ describe('AdyenV3PaymentStrategy', () => {
 
             jest.spyOn(adyenCheckout, 'create')
                 .mockImplementationOnce(jest.fn(_method => {
-                    // const { onChange } = options;
-                    // handleOnChange = onChange;
-
                     return paymentComponent;
                 }))
                 .mockImplementationOnce(jest.fn((_method, options) => {
-                    const { /*onChange,*/ onError } = options;
-                    // handleOnChange = onChange;
+                    const { onError } = options;
                     handleOnError = onError;
 
                     return cardVerificationComponent;
@@ -204,23 +197,6 @@ describe('AdyenV3PaymentStrategy', () => {
                 expect(  () =>  strategy.execute(getOrderRequestBodyWithoutPayment()))
                     .toThrow(PaymentArgumentInvalidError);
             });
-
-            // it('does not submit payment when trying to pay with invalid component state', async () => {
-            //     const adyenInvalidPaymentComponent = {
-            //         mount: jest.fn(),
-            //         unmount: jest.fn(),
-            //     };
-            //     jest.spyOn(adyenCheckout, 'create')
-            //         .mockReturnValue(adyenInvalidPaymentComponent);
-
-            //     await strategy.initialize(options);
-
-            //     await expect(strategy.execute(getOrderRequestBody()))
-            //         .rejects.toThrow(NotInitializedError);
-
-            //     expect(paymentActionCreator.submitPayment).toHaveBeenCalledTimes(0);
-            //     expect(adyenCheckout.create).toHaveBeenCalledTimes(2);
-            // });
 
             it('skip fields validation if payment type is "ideal"',  async () => {
                 const adyenInvalidPaymentComponent = {
@@ -454,7 +430,6 @@ describe('AdyenV3PaymentStrategy', () => {
                     hasHolderName: expect.any(Boolean),
                     styles: expect.any(Object),
                     placeholders: expect.any(Object),
-                    // onChange: expect.any(Function),
                     data: {
                         holderName: 'Test Tester',
                         billingAddress: {
