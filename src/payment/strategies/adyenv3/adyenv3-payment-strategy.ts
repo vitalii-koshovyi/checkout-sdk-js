@@ -14,7 +14,7 @@ import PaymentMethod from '../../payment-method';
 import { PaymentInitializeOptions, PaymentRequestOptions } from '../../payment-request-options';
 import PaymentStrategy from '../payment-strategy';
 
-import { /*isAccountState,*/ isCardState, AdyenAction, AdyenActionType, AdyenAdditionalAction, AdyenAdditionalActionState, AdyenClient, AdyenComponent, AdyenComponentType, AdyenError, AdyenPaymentMethodType, AdyenPlaceholderData, CardStateErrors } from './adyenv3';
+import { isCardState, AdyenAction, AdyenActionType, AdyenAdditionalAction, AdyenAdditionalActionState, AdyenClient, AdyenComponent, AdyenComponentType, AdyenError, AdyenPaymentMethodType, AdyenPlaceholderData, CardStateErrors } from './adyenv3';
 import AdyenV3PaymentInitializeOptions from './adyenv3-initialize-options';
 import AdyenV3ScriptLoader from './adyenv3-script-loader';
 
@@ -76,18 +76,14 @@ export default class Adyenv3PaymentStrategy implements PaymentStrategy {
 
         return this._store.dispatch(this._orderActionCreator.submitOrder(order, options))
             .then(() => {
-                const cardComponent = this._paymentComponent;
-                const componentState = cardComponent?.state || {data: {paymentMethod: {type: payment.methodId}}} ;
-
-                if (!componentState ) {
-                    throw new NotInitializedError(NotInitializedErrorType.PaymentNotInitialized);
-                }
+                const paymentComponent = paymentData && isVaultedInstrument(paymentData) ? this._cardVerificationComponent : this._paymentComponent;
+                const componentState = paymentComponent?.state || {data: {paymentMethod: {type: payment.methodId}}} ;
 
                 if (paymentData && isVaultedInstrument(paymentData)) {
                     let bigpayToken = {};
                     if (isCardState(componentState)) {
                         bigpayToken = {
-                            verification_value: this._cardVerificationComponent?.state?.data.encryptedSecurityCode,
+                            verification_value: componentState.data.encryptedSecurityCode,
                         };
                     }
 
@@ -317,9 +313,11 @@ export default class Adyenv3PaymentStrategy implements PaymentStrategy {
             return;
         }
 
-        adyenv3.hasVaultedInstruments ?
-            adyenv3.validateCardFields(cardComponent.state) :
+        if (adyenv3.hasVaultedInstruments) {
+            adyenv3.validateCardFields(cardComponent.state);
+        } else {
             cardComponent.componentRef.showValidation();
+        }
 
         if ( Object.keys(cardComponent.state).length === 0 || !this._isFieldsValid(cardComponent, adyenv3) ) {
             throw new PaymentInvalidFormError( this._mapCardErrors(cardComponent?.state?.errors) );
