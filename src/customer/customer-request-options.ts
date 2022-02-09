@@ -73,12 +73,6 @@ export interface CustomerInitializeOptions extends CustomerRequestOptions {
     googlepayadyenv2?: GooglePayCustomerInitializeOptions;
 
     /**
-     * The options that are required to initialize the AdyenV3 GooglePay payment method.
-     * They can be omitted unless you need to support GooglePay.
-     */
-      googlepayadyenv3?: GooglePayCustomerInitializeOptions;
-
-    /**
      * The options that are required to initialize the GooglePay payment method.
      * They can be omitted unless you need to support GooglePay.
      */

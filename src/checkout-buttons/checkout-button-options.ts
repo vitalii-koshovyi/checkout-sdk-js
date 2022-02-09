@@ -60,12 +60,6 @@ export interface CheckoutButtonInitializeOptions extends CheckoutButtonOptions {
      googlepayadyenv2?: GooglePayButtonInitializeOptions;
 
     /**
-     * The options that are required to initialize the GooglePay payment method.
-     * They can be omitted unless you need to support adyenv3 GooglePay.
-     */
-     googlepayadyenv3?: GooglePayButtonInitializeOptions;
-
-    /**
      * The options that are required to facilitate Braintree GooglePay. They can be
      * omitted unless you need to support Braintree GooglePay.
      */

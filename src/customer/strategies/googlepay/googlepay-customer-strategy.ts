@@ -91,10 +91,6 @@ export default class GooglePayCustomerStrategy implements CustomerStrategy {
             return options.googlepayadyenv2;
         }
 
-        if (options.methodId === 'googlepayadyenv3' && options.googlepayadyenv3) {
-            return options.googlepayadyenv3;
-        }
-
         if (options.methodId === 'googlepayauthorizenet' && options.googlepayauthorizenet) {
             return options.googlepayauthorizenet;
         }
