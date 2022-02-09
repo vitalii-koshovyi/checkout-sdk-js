@@ -825,9 +825,3 @@ export function isCardState(param: any): param is CardState {
     return param && typeof param.data.encryptedSecurityCode === 'string' ||
         typeof param.data.encryptedExpiryMonth === 'string';
 }
-
-// export function isAccountState(param: any): param is AccountState {
-//     const bankSupported = ['ideal', 'sepadirectdebit', 'directEbanking', 'giropay'];
-
-//     return bankSupported.indexOf(param.data.paymentMethod.type) !== -1;
-// }
