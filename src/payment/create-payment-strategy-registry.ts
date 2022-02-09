@@ -149,7 +149,6 @@ export default function createPaymentStrategyRegistry(
         )
     );
 
-
     registry.register(PaymentStrategyType.AFFIRM, () =>
         new AffirmPaymentStrategy(
             store,
