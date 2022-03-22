@@ -207,6 +207,7 @@ export default class Adyenv3PaymentStrategy implements PaymentStrategy {
         if (!billingAddress) {
             return {};
         }
+        const shippingAddress = this._store.getState().shippingAddress.getShippingAddress();
 
         const {
             firstName,
@@ -217,6 +218,8 @@ export default class Adyenv3PaymentStrategy implements PaymentStrategy {
             city,
             stateOrProvinceCode: stateOrProvince,
             countryCode: country,
+            email,
+            phone,
         } = billingAddress;
 
         return {
@@ -229,6 +232,20 @@ export default class Adyenv3PaymentStrategy implements PaymentStrategy {
                 stateOrProvince,
                 country,
             },
+            personalDetails: {
+                firstName,
+                lastName,
+                telephoneNumber: phone,
+                shopperEmail: email,
+            },
+            ...(shippingAddress ? { deliveryAddress: {
+                    street: shippingAddress?.address1,
+                    houseNumberOrName: shippingAddress?.address2,
+                    postalCode: shippingAddress?.postalCode,
+                    city: shippingAddress?.city,
+                    stateOrProvince: shippingAddress?.stateOrProvince,
+                    country: shippingAddress?.countryCode,
+                }} : {}),
         };
     }
 
@@ -277,6 +294,13 @@ export default class Adyenv3PaymentStrategy implements PaymentStrategy {
             paymentComponent = adyenClient.create(paymentMethod.method, {
                 ...adyenv3.options,
                 ...(billingAddress ? { data: this._mapAdyenPlaceholderData(billingAddress) } : {}),
+                visibility: {
+                    personalDetails: 'editable',
+                    billingAddress: 'readOnly',
+                    deliveryAddress: 'readOnly',
+                },
+                enableStoreDetails: true,
+                hasHolderName: true,
             });
 
             try {

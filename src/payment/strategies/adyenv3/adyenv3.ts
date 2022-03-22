@@ -232,6 +232,8 @@ export interface AdyenConfiguration {
 
     showPayButton?: boolean;
 
+
+
     /*
      * Specify the function that you created, for example, handleOnChange. If you wish
      * to override this function, you can also define an onChange event on the Component
@@ -245,6 +247,20 @@ export interface AdyenConfiguration {
 export interface AdyenPlaceholderData {
     holderName?: string;
     billingAddress?: {
+        street: string;
+        houseNumberOrName: string;
+        postalCode: string;
+        city: string;
+        stateOrProvince: string;
+        country: string;
+    };
+    personalDetails?: {
+        firstName: string;
+        lastName: string;
+        telephoneNumber: string;
+        shopperEmail?: string;
+    };
+    deliveryAddress?: {
         street: string;
         houseNumberOrName: string;
         postalCode: string;
@@ -293,6 +309,12 @@ export interface AdyenV3CreditCardComponentOptions extends AdyenBaseCardComponen
      * Specify the sample values you want to appear for card detail input fields.
      */
     placeholders?: CreditCardPlaceHolder | SepaPlaceHolder;
+
+    visibility?: {
+        personalDetails: string;
+        billingAddress: string;
+        deliveryAddress: string;
+    };
 }
 
 export interface AdyenCustomCardComponentOptions extends AdyenBaseCardComponentOptions, AdyenComponentEvents {
