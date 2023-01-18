@@ -357,6 +357,7 @@ export default class Adyenv3PaymentStrategy implements PaymentStrategy {
 
             try {
                 paymentComponent.mount(`#${adyenv3.containerId}`);
+                console.log(123);
             } catch (error) {
                 reject(new NotInitializedError(NotInitializedErrorType.PaymentNotInitialized));
             }
