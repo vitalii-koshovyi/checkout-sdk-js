@@ -1,6 +1,6 @@
-[@bigcommerce/checkout-sdk](../README.md) / PayPalCommerceCustomerInitializeOptions
+[@bigcommerce/checkout-sdk](../README.md) / PaypalCommerceCustomerInitializeOptions
 
-# Interface: PayPalCommerceCustomerInitializeOptions
+# Interface: PaypalCommerceCustomerInitializeOptions
 
 A set of options that are required to initialize the customer step of
 checkout to support PayPalCommerce.
@@ -9,12 +9,12 @@ checkout to support PayPalCommerce.
 
 ### Properties
 
-- [container](PayPalCommerceCustomerInitializeOptions.md#container)
+- [container](PaypalCommerceCustomerInitializeOptions.md#container)
 
 ### Methods
 
-- [onComplete](PayPalCommerceCustomerInitializeOptions.md#oncomplete)
-- [onError](PayPalCommerceCustomerInitializeOptions.md#onerror)
+- [onComplete](PaypalCommerceCustomerInitializeOptions.md#oncomplete)
+- [onError](PaypalCommerceCustomerInitializeOptions.md#onerror)
 
 ## Properties
 
