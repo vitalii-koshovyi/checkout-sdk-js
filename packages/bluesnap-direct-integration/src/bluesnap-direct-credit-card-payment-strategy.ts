@@ -88,7 +88,15 @@ export default class BlueSnapDirectCreditCardPaymentStrategy implements PaymentS
 
         const bluesnapSubmitedForm = await this._blueSnapDirectHostedForm
             .validate()
-            .submit(is3dsEnabled ? this._getBlueSnapDirectThreeDSecureData() : undefined);
+            .submit(
+                is3dsEnabled ? this._getBlueSnapDirectThreeDSecureData() : undefined,
+                !(
+                    isHostedInstrumentLike(payload.payment.paymentData) &&
+                    isVaultedInstrument(payload.payment.paymentData)
+                ),
+            );
+
+        console.log({ bluesnapSubmitedForm });
 
         if (
             isHostedInstrumentLike(payload.payment.paymentData) &&

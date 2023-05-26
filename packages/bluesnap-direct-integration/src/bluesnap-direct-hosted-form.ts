@@ -129,7 +129,10 @@ export default class BlueSnapDirectHostedForm {
         return this;
     }
 
-    submit(threeDSecureData?: ThreeDSecureData): Promise<CallbackCardData & CardHolderName> {
+    submit(
+        threeDSecureData?: ThreeDSecureData,
+        shouldSendName = false,
+    ): Promise<CallbackCardData & CardHolderName> {
         console.log('submit');
 
         return new Promise((resolve, reject) =>
@@ -147,7 +150,9 @@ export default class BlueSnapDirectHostedForm {
                           )
                         : resolve({
                               ...data.cardData,
-                              cardHolderName: this._nameOnCardInput.getValue(),
+                              ...(shouldSendName
+                                  ? { cardHolderName: this._nameOnCardInput.getValue() }
+                                  : {}),
                           }),
                 threeDSecureData,
             ),
