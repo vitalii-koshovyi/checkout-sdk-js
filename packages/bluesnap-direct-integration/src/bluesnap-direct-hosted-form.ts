@@ -10,6 +10,7 @@ import {
     HostedFieldStylesMap,
     HostedFormOptions,
     HostedInputValidateErrorData,
+    HostedStoredCardFieldOptionsMap,
     InvalidArgumentError,
     NotInitializedError,
     NotInitializedErrorType,
@@ -24,6 +25,7 @@ import BluesnapDirectNameOnCardInput from './bluesnap-direct-name-on-card-input'
 import BlueSnapDirectScriptLoader from './bluesnap-direct-script-loader';
 import isValidationErrorDescription from './is-bluesnap-direct-input-validation-error-description';
 import isHostedCardFieldOptionsMap from './is-hosted-card-field-options-map';
+import isHostedStoredCardFieldOptionsMap from './is-hosted-stored-card-field-options-map';
 import {
     BlueSnapDirectSdk,
     BlueSnapDirectStyle,
@@ -51,8 +53,15 @@ export default class BlueSnapDirectHostedForm {
         private _hostedInputValidator: BlueSnapHostedInputValidator,
     ) {}
 
-    async initialize(testMode = false): Promise<void> {
+    async initialize(testMode = false, isStoredCard = false): Promise<void> {
         this._blueSnapSdk = await this._scriptLoader.load(testMode);
+
+        if (isStoredCard) {
+            this._hostedInputValidator.initializeValidationFields();
+
+            return;
+        }
+
         this._hostedInputValidator.initialize();
     }
 
@@ -63,14 +72,21 @@ export default class BlueSnapDirectHostedForm {
     ): Promise<void> {
         const blueSnapSdk = this._getBlueSnapSdk();
 
-        if (!isHostedCardFieldOptionsMap(fields)) {
+        if (!isHostedCardFieldOptionsMap(fields) && !isHostedStoredCardFieldOptionsMap(fields)) {
             throw new InvalidArgumentError(
                 'Field options must be of type HostedCardFieldOptionsMap',
             );
         }
 
         this._onValidate = callbacksAndStyles.onValidate;
-        this._setCustomBlueSnapAttributes(fields);
+
+        if (isHostedCardFieldOptionsMap(fields)) {
+            this._setCustomBlueSnapAttributes(fields);
+        }
+
+        if (isHostedStoredCardFieldOptionsMap(fields)) {
+            this._setCustomBlueSnapAttributesStoredCards(fields);
+        }
 
         return new Promise<void>((resolve) => {
             const options = this._getHostedPaymentFieldsOptions(
@@ -82,11 +98,14 @@ export default class BlueSnapDirectHostedForm {
             );
 
             blueSnapSdk.hostedPaymentFieldsCreate(options);
-            this._nameOnCardInput.attach(
-                options,
-                fields.cardName.accessibilityLabel,
-                fields.cardName.placeholder,
-            );
+
+            if (isHostedCardFieldOptionsMap(fields)) {
+                this._nameOnCardInput.attach(
+                    options,
+                    fields.cardName.accessibilityLabel,
+                    fields.cardName.placeholder,
+                );
+            }
         });
     }
 
@@ -111,6 +130,8 @@ export default class BlueSnapDirectHostedForm {
     }
 
     submit(threeDSecureData?: ThreeDSecureData): Promise<CallbackCardData & CardHolderName> {
+        console.log('submit');
+
         return new Promise((resolve, reject) =>
             this._getBlueSnapSdk().hostedPaymentFieldsSubmitData(
                 (data: CallbackResults) =>
@@ -145,7 +166,7 @@ export default class BlueSnapDirectHostedForm {
 
     private _getHostedPaymentFieldsOptions(
         token: string,
-        fields: HostedCardFieldOptionsMap,
+        fields: HostedCardFieldOptionsMap | HostedStoredCardFieldOptionsMap,
         {
             onFocus,
             onBlur,
@@ -170,9 +191,11 @@ export default class BlueSnapDirectHostedForm {
                 onValid: (tagId: HostedFieldTagId) =>
                     onValidate?.(this._hostedInputValidator.validate({ tagId })),
             },
-            ccnPlaceHolder: fields.cardNumber.placeholder || '',
-            cvvPlaceHolder: fields.cardCode?.placeholder || '',
-            expPlaceHolder: fields.cardExpiry.placeholder || 'MM / YY',
+            ...(isHostedCardFieldOptionsMap(fields) && {
+                ccnPlaceHolder: fields.cardNumber.placeholder || '',
+                cvvPlaceHolder: fields.cardCode?.placeholder || '',
+                expPlaceHolder: fields.cardExpiry.placeholder || 'MM / YY',
+            }),
             ...(styles && { style: this._mapStyles(styles) }),
             '3DS': enable3DS,
         };
@@ -271,5 +294,23 @@ export default class BlueSnapDirectHostedForm {
         cardExpiryContainer.dataset.bluesnap = HostedFieldTagId.CardExpiry;
         cardCodeContainer.dataset.bluesnap = HostedFieldTagId.CardCode;
         cardNameContainer.dataset.bluesnap = HostedFieldTagId.CardName;
+    }
+
+    private _setCustomBlueSnapAttributesStoredCards(fields: HostedStoredCardFieldOptionsMap): void {
+        const { cardCodeVerification, cardNumberVerification } = fields;
+
+        const cardNumberContainer =
+            cardNumberVerification && document.getElementById(cardNumberVerification.containerId);
+        const cardCodeContainer =
+            cardCodeVerification && document.getElementById(cardCodeVerification.containerId);
+
+        if (!cardNumberContainer || !cardCodeContainer) {
+            throw new InvalidArgumentError(
+                'Unable to create hosted payment fields to invalid HTML container elements.',
+            );
+        }
+
+        cardNumberContainer.dataset.bluesnap = HostedFieldTagId.CardNumber;
+        cardCodeContainer.dataset.bluesnap = HostedFieldTagId.CardCode;
     }
 }

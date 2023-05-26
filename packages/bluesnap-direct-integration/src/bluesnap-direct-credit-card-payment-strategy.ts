@@ -16,6 +16,7 @@ import {
 
 import BlueSnapDirectHostedForm from './bluesnap-direct-hosted-form';
 import isHostedCardFieldOptionsMap from './is-hosted-card-field-options-map';
+import isHostedStoredCardFieldOptionsMap from './is-hosted-stored-card-field-options-map';
 import { BlueSnapDirectThreeDSecureData } from './types';
 
 export default class BlueSnapDirectCreditCardPaymentStrategy implements PaymentStrategy {
@@ -44,10 +45,20 @@ export default class BlueSnapDirectCreditCardPaymentStrategy implements PaymentS
             clientToken,
         } = state.getPaymentMethodOrThrow(methodId, gatewayId);
 
+        console.log(
+            'state.getPaymentMethodOrThrow(methodId, gatewayId)',
+            state.getPaymentMethodOrThrow(methodId, gatewayId),
+        );
         this._paymentFieldsToken = clientToken;
 
-        if (isHostedCardFieldOptionsMap(creditCard.form.fields)) {
-            await this._blueSnapDirectHostedForm.initialize(testMode);
+        if (
+            isHostedCardFieldOptionsMap(creditCard.form.fields) ||
+            isHostedStoredCardFieldOptionsMap(creditCard.form.fields)
+        ) {
+            await this._blueSnapDirectHostedForm.initialize(
+                testMode,
+                isHostedStoredCardFieldOptionsMap(creditCard.form.fields),
+            );
             await this._blueSnapDirectHostedForm.attach(
                 this._getPaymentFieldsToken(),
                 creditCard,
@@ -69,6 +80,16 @@ export default class BlueSnapDirectCreditCardPaymentStrategy implements PaymentS
 
         await this._paymentIntegrationService.submitOrder();
 
+        const pfToken = this._getPaymentFieldsToken();
+
+        const { is3dsEnabled } = this._paymentIntegrationService
+            .getState()
+            .getPaymentMethodOrThrow(payload.payment.methodId, payload.payment.gatewayId).config;
+
+        const bluesnapSubmitedForm = await this._blueSnapDirectHostedForm
+            .validate()
+            .submit(is3dsEnabled ? this._getBlueSnapDirectThreeDSecureData() : undefined);
+
         if (
             isHostedInstrumentLike(payload.payment.paymentData) &&
             isVaultedInstrument(payload.payment.paymentData) &&
@@ -80,6 +101,8 @@ export default class BlueSnapDirectCreditCardPaymentStrategy implements PaymentS
                     formattedPayload: {
                         bigpay_token: {
                             token: payload.payment.paymentData.instrumentId,
+                            credit_card_number_confirmation: pfToken,
+                            verification_value: pfToken,
                         },
                         set_as_default_stored_instrument: shouldSetAsDefaultInstrument,
                     },
@@ -89,16 +112,6 @@ export default class BlueSnapDirectCreditCardPaymentStrategy implements PaymentS
             return;
         }
 
-        const pfToken = this._getPaymentFieldsToken();
-
-        const { is3dsEnabled } = this._paymentIntegrationService
-            .getState()
-            .getPaymentMethodOrThrow(payload.payment.methodId, payload.payment.gatewayId).config;
-
-        const { cardHolderName } = await this._blueSnapDirectHostedForm
-            .validate()
-            .submit(is3dsEnabled ? this._getBlueSnapDirectThreeDSecureData() : undefined);
-
         await this._paymentIntegrationService.submitPayment({
             ...payload.payment,
             paymentData: {
@@ -106,7 +119,7 @@ export default class BlueSnapDirectCreditCardPaymentStrategy implements PaymentS
                     credit_card_token: {
                         token: JSON.stringify({
                             pfToken,
-                            cardHolderName,
+                            cardHolderName: bluesnapSubmitedForm.cardHolderName,
                         }),
                     },
                     vault_payment_instrument: shouldSaveInstrument,

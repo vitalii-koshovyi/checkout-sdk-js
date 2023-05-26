@@ -22,6 +22,13 @@ export default class BlueSnapHostedInputValidator {
         };
     }
 
+    initializeValidationFields(): void {
+        this._errors = {
+            cardNumber: [CREDIT_CARD_ERRORS.empty.cardNumber],
+            cardCode: [CREDIT_CARD_ERRORS.empty.cardCode],
+        };
+    }
+
     validate(error?: {
         tagId: HostedFieldTagId;
         errorDescription?: ErrorDescription;
