@@ -142,7 +142,7 @@ export default class BlueSnapDirectCreditCardPaymentStrategy implements PaymentS
     }
 
     deinitialize(): Promise<void> {
-        this._blueSnapDirectHostedForm.detach();
+        // this._blueSnapDirectHostedForm.detach();
 
         return Promise.resolve();
     }
