@@ -85,7 +85,25 @@ export default class BlueSnapDirectHostedForm {
         }
 
         if (isHostedStoredCardFieldOptionsMap(fields)) {
-            this._setCustomBlueSnapAttributesStoredCards(fields);
+            const { cardNumberVerification, cardCodeVerification } = fields;
+
+            const cardNumberContainer =
+                cardNumberVerification &&
+                document.getElementById(cardNumberVerification.containerId);
+            const cardCodeContainer =
+                cardCodeVerification && document.getElementById(cardCodeVerification.containerId);
+
+            if (!cardNumberContainer && !cardCodeContainer) {
+                return;
+            }
+
+            if (cardNumberContainer) {
+                cardNumberContainer.dataset.bluesnap = HostedFieldTagId.CardNumber;
+            }
+
+            if (cardCodeContainer) {
+                cardCodeContainer.dataset.bluesnap = HostedFieldTagId.CardCode;
+            }
         }
 
         return new Promise<void>((resolve) => {
@@ -133,8 +151,6 @@ export default class BlueSnapDirectHostedForm {
         threeDSecureData?: ThreeDSecureData,
         shouldSendName = false,
     ): Promise<CallbackCardData & CardHolderName> {
-        console.log('submit');
-
         return new Promise((resolve, reject) =>
             this._getBlueSnapSdk().hostedPaymentFieldsSubmitData(
                 (data: CallbackResults) =>
@@ -299,23 +315,5 @@ export default class BlueSnapDirectHostedForm {
         cardExpiryContainer.dataset.bluesnap = HostedFieldTagId.CardExpiry;
         cardCodeContainer.dataset.bluesnap = HostedFieldTagId.CardCode;
         cardNameContainer.dataset.bluesnap = HostedFieldTagId.CardName;
-    }
-
-    private _setCustomBlueSnapAttributesStoredCards(fields: HostedStoredCardFieldOptionsMap): void {
-        const { cardCodeVerification, cardNumberVerification } = fields;
-
-        const cardNumberContainer =
-            cardNumberVerification && document.getElementById(cardNumberVerification.containerId);
-        const cardCodeContainer =
-            cardCodeVerification && document.getElementById(cardCodeVerification.containerId);
-
-        if (!cardNumberContainer || !cardCodeContainer) {
-            throw new InvalidArgumentError(
-                'Unable to create hosted payment fields to invalid HTML container elements.',
-            );
-        }
-
-        cardNumberContainer.dataset.bluesnap = HostedFieldTagId.CardNumber;
-        cardCodeContainer.dataset.bluesnap = HostedFieldTagId.CardCode;
     }
 }

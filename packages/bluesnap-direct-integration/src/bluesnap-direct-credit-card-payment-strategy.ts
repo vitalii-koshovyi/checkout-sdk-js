@@ -21,6 +21,7 @@ import { BlueSnapDirectThreeDSecureData } from './types';
 
 export default class BlueSnapDirectCreditCardPaymentStrategy implements PaymentStrategy {
     private _paymentFieldsToken?: string;
+    private _shouldUseHostedFields?: boolean;
 
     constructor(
         private _paymentIntegrationService: PaymentIntegrationService,
@@ -31,6 +32,8 @@ export default class BlueSnapDirectCreditCardPaymentStrategy implements PaymentS
         options: PaymentInitializeOptions & WithCreditCardPaymentInitializeOptions,
     ): Promise<void> {
         const { methodId, gatewayId, creditCard } = options;
+
+        console.log({ options });
 
         if (!gatewayId || !creditCard) {
             throw new InvalidArgumentError();
@@ -50,6 +53,11 @@ export default class BlueSnapDirectCreditCardPaymentStrategy implements PaymentS
             state.getPaymentMethodOrThrow(methodId, gatewayId),
         );
         this._paymentFieldsToken = clientToken;
+        this._shouldUseHostedFields =
+            isHostedCardFieldOptionsMap(creditCard.form.fields) ||
+            (isHostedStoredCardFieldOptionsMap(creditCard.form.fields) &&
+                !!creditCard.form.fields.cardNumberVerification &&
+                !!creditCard.form.fields.cardCodeVerification);
 
         if (
             isHostedCardFieldOptionsMap(creditCard.form.fields) ||
@@ -78,25 +86,23 @@ export default class BlueSnapDirectCreditCardPaymentStrategy implements PaymentS
             ? payload.payment.paymentData
             : { shouldSaveInstrument: false, shouldSetAsDefaultInstrument: false };
 
-        await this._paymentIntegrationService.submitOrder();
-
         const pfToken = this._getPaymentFieldsToken();
 
         const { is3dsEnabled } = this._paymentIntegrationService
             .getState()
             .getPaymentMethodOrThrow(payload.payment.methodId, payload.payment.gatewayId).config;
 
-        const bluesnapSubmitedForm = await this._blueSnapDirectHostedForm
-            .validate()
-            .submit(
-                is3dsEnabled ? this._getBlueSnapDirectThreeDSecureData() : undefined,
-                !(
-                    isHostedInstrumentLike(payload.payment.paymentData) &&
-                    isVaultedInstrument(payload.payment.paymentData)
-                ),
-            );
-
-        console.log({ bluesnapSubmitedForm });
+        const bluesnapSubmitedForm = this._shouldUseHostedFields
+            ? await this._blueSnapDirectHostedForm
+                  .validate()
+                  .submit(
+                      is3dsEnabled ? this._getBlueSnapDirectThreeDSecureData() : undefined,
+                      !(
+                          isHostedInstrumentLike(payload.payment.paymentData) &&
+                          isVaultedInstrument(payload.payment.paymentData)
+                      ),
+                  )
+            : undefined;
 
         if (
             isHostedInstrumentLike(payload.payment.paymentData) &&
@@ -106,14 +112,9 @@ export default class BlueSnapDirectCreditCardPaymentStrategy implements PaymentS
             await this._paymentIntegrationService.submitPayment({
                 ...payload.payment,
                 paymentData: {
-                    formattedPayload: {
-                        bigpay_token: {
-                            token: payload.payment.paymentData.instrumentId,
-                            credit_card_number_confirmation: pfToken,
-                            verification_value: pfToken,
-                        },
-                        set_as_default_stored_instrument: shouldSetAsDefaultInstrument,
-                    },
+                    instrumentId: payload.payment.paymentData.instrumentId,
+                    ...(this._shouldUseHostedFields ? { nonce: pfToken } : {}),
+                    shouldSetAsDefaultInstrument: !!shouldSetAsDefaultInstrument,
                 },
             });
 
@@ -127,7 +128,7 @@ export default class BlueSnapDirectCreditCardPaymentStrategy implements PaymentS
                     credit_card_token: {
                         token: JSON.stringify({
                             pfToken,
-                            cardHolderName: bluesnapSubmitedForm.cardHolderName,
+                            cardHolderName: 'test',
                         }),
                     },
                     vault_payment_instrument: shouldSaveInstrument,
