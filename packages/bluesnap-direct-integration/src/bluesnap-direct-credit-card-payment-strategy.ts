@@ -102,6 +102,7 @@ export default class BlueSnapDirectCreditCardPaymentStrategy implements PaymentS
                 ...payload.payment,
                 paymentData: {
                     instrumentId: paymentData.instrumentId,
+                    deviceSessionId: bluesnapSubmitedForm && bluesnapSubmitedForm.fraudSessionId,
                     ...(this._shouldUseHostedFields ? { nonce: pfToken } : {}),
                     shouldSetAsDefaultInstrument: !!shouldSetAsDefaultInstrument,
                 },
@@ -117,6 +118,8 @@ export default class BlueSnapDirectCreditCardPaymentStrategy implements PaymentS
                     credit_card_token: {
                         token: JSON.stringify({
                             pfToken,
+                            fraudSessionId:
+                                bluesnapSubmitedForm && bluesnapSubmitedForm.fraudSessionId,
                             cardHolderName:
                                 bluesnapSubmitedForm && bluesnapSubmitedForm.cardHolderName,
                         }),

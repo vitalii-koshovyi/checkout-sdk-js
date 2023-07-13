@@ -39,6 +39,7 @@ import {
     BlueSnapDirectErrorCode as ErrorCode,
     BlueSnapDirectErrorDescription as ErrorDescription,
     BlueSnapDirectEventOrigin as EventOrigin,
+    BlueSnapDirectCallbackFraudSessionId as FraudSessionId,
     BlueSnapDirectHostedFieldTagId as HostedFieldTagId,
     BlueSnapDirectHostedPaymentFieldsOptions as HostedPaymentFieldsOptions,
     BlueSnapDirectThreeDSecureData as ThreeDSecureData,
@@ -149,28 +150,29 @@ export default class BlueSnapDirectHostedForm {
     submit(
         threeDSecureData?: ThreeDSecureData,
         shouldSendName = false,
-    ): Promise<CallbackCardData & CardHolderName> {
+    ): Promise<CallbackCardData & CardHolderName & FraudSessionId> {
         return new Promise((resolve, reject) =>
-            this._getBlueSnapSdk().hostedPaymentFieldsSubmitData(
-                (data: CallbackResults) =>
-                    this._isBlueSnapDirectCallbackError(data)
-                        ? reject(
-                              new PaymentMethodFailedError(
-                                  data.statusCode === ErrorCode.THREE_DS_AUTH_FAILED
-                                      ? data.error[0].errorDescription
-                                      : `Submission failed with status: ${
-                                            data.statusCode
-                                        } and errors: ${JSON.stringify(data.error)}`,
-                              ),
-                          )
-                        : resolve({
-                              ...data.cardData,
-                              ...(shouldSendName
-                                  ? { cardHolderName: this._nameOnCardInput.getValue() }
-                                  : {}),
-                          }),
-                threeDSecureData,
-            ),
+            this._getBlueSnapSdk().hostedPaymentFieldsSubmitData((data: CallbackResults) => {
+                const fraudSessionId = data.transactionFraudInfo.fraudSessionId;
+
+                return this._isBlueSnapDirectCallbackError(data)
+                    ? reject(
+                          new PaymentMethodFailedError(
+                              data.statusCode === ErrorCode.THREE_DS_AUTH_FAILED
+                                  ? data.error[0].errorDescription
+                                  : `Submission failed with status: ${
+                                        data.statusCode
+                                    } and errors: ${JSON.stringify(data.error)}`,
+                          ),
+                      )
+                    : resolve({
+                          fraudSessionId,
+                          ...data.cardData,
+                          ...(shouldSendName
+                              ? { cardHolderName: this._nameOnCardInput.getValue() }
+                              : {}),
+                      });
+            }, threeDSecureData),
         );
     }
 

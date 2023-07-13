@@ -95,9 +95,11 @@ export interface BlueSnapDirectHostedPaymentFieldsOptions {
 
 interface BlueSnapDirectCallback {
     statusCode: string;
-    transactionFraudInfo: {
-        fraudSessionId: string;
-    };
+    transactionFraudInfo: BlueSnapDirectCallbackFraudSessionId;
+}
+
+export interface BlueSnapDirectCallbackFraudSessionId {
+    fraudSessionId: string;
 }
 
 interface BlueSnapDirectCardData {
